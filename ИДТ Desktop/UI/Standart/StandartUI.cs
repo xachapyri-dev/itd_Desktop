@@ -1,0 +1,195 @@
+﻿using Microsoft.Web.WebView2.Core;
+using System;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Windows.Forms;
+
+namespace ИТД_Desktop.UI.Standart
+{
+    public partial class StandartUI : Form
+    {
+        public StandartUI()
+        {
+            InitializeComponent();
+            webView21.Source = new Uri("https://xn--d1ah4a.com/");
+            UpdateTheme(false);
+        }
+        #region WebView2
+        private async void webView21_NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
+        {
+            // document.documentElement.setAttribute("data-theme", i);
+            // const i = a === "light" ? "dark" : "light";
+            // za = "nowkie_theme";
+            // localStorage.setItem(za, i);
+            this.Text = $"ИТД Desktop | {webView21.Source}";
+            label1.Text = webView21.Source.ToString();
+            if (Properties.Settings.Default.DarkTheme)
+                await webView21.CoreWebView2.ExecuteScriptAsync("document.documentElement.setAttribute(\"data-theme\", \"dark\");\n" +
+                    "localStorage.setItem(\"nowkie_theme\", \"dark\")");
+            else
+                await webView21.CoreWebView2.ExecuteScriptAsync("document.documentElement.setAttribute(\"data-theme\", \"light\");\n" +
+                    "localStorage.setItem(\"nowkie_theme\", \"light\")");
+
+        }
+        private void webView21_CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
+        {
+            if (!e.IsSuccess)
+            {
+                MessageBox.Show("Ошибка инициализации WebView2: " + e.InitializationException?.Message);
+                return;
+            }
+            try
+            {
+                string originalPath = Properties.Settings.Default.FilePath;
+                Console.WriteLine($"Original path from settings: '{originalPath}'");
+                string downloadPath;
+                if (!string.IsNullOrWhiteSpace(originalPath))
+                {
+                    string cleanedPath = CleanPath(originalPath);
+                    Console.WriteLine($"Cleaned path: '{cleanedPath}'");
+                    if (IsValidPath(cleanedPath))
+                    {
+                        downloadPath = cleanedPath;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Path is invalid, using default");
+                        downloadPath = GetDefaultDownloadsPath();
+                    }
+                }
+                else
+                {
+                    downloadPath = GetDefaultDownloadsPath();
+                }
+                Console.WriteLine($"Setting download path to: '{downloadPath}'");
+                webView21.CoreWebView2.Profile.DefaultDownloadFolderPath = downloadPath;
+            }
+            catch (Exception ex)
+            {
+                string defaultPath = GetDefaultDownloadsPath();
+                webView21.CoreWebView2.Profile.DefaultDownloadFolderPath = defaultPath;
+                MessageBox.Show($"Ошибка при установке папки загрузок: {ex.Message}\n\n" +
+                               $"Используется стандартная папка: {defaultPath}",
+                               "Ошибка",
+                               MessageBoxButtons.OK,
+                               MessageBoxIcon.Warning);
+                Console.WriteLine($"Exception details: {ex}");
+            }
+        }
+
+        #endregion
+        public void UpdateTheme(bool isRestartpage = true)
+        {
+            if (!Properties.Settings.Default.DarkTheme)
+            {
+                this.BackColor = Color.White;
+                this.ForeColor = Color.Black;
+                panel1.BackColor = Color.White;
+                panel2.BackColor = Color.White;
+                label1.ForeColor = Color.Black;
+                button1.ForeColor = Color.Black;
+                button2.ForeColor = Color.Black;
+                button3.ForeColor = Color.Black;
+                button4.ForeColor = Color.Black;
+                button5.ForeColor = Color.Black;
+                button6.ForeColor = Color.Black;
+                button7.ForeColor = Color.Black;
+                button8.ForeColor = Color.Black;
+                button1.BackColor = Color.White;
+                button2.BackColor = Color.White;
+                button3.BackColor = Color.White;
+                button4.BackColor = Color.White;
+                button5.BackColor = Color.White;
+                button6.BackColor = Color.White;
+                button7.BackColor = Color.White;
+                button8.BackColor = Color.White;
+            }
+            else
+            {
+                this.BackColor = Color.Black;
+                this.ForeColor = Color.White;
+                panel1.BackColor = Color.Black;
+                panel2.BackColor = Color.Black;
+                label1.ForeColor = Color.White;
+                button1.ForeColor = Color.White;
+                button2.ForeColor = Color.White;
+                button3.ForeColor = Color.White;
+                button4.ForeColor = Color.White;
+                button5.ForeColor = Color.White;
+                button6.ForeColor = Color.White;
+                button7.ForeColor = Color.White;
+                button8.ForeColor = Color.White;
+                button1.BackColor = Color.Black;
+                button2.BackColor = Color.Black;
+                button3.BackColor = Color.Black;
+                button4.BackColor = Color.Black;
+                button5.BackColor = Color.Black;
+                button6.BackColor = Color.Black;
+                button7.BackColor = Color.Black;
+                button8.BackColor = Color.Black;
+            }
+            if (isRestartpage)
+                webView21.CoreWebView2.Reload();
+        }
+        private void button1_Click(object sender, EventArgs e) => webView21.CoreWebView2.GoBack();
+        private void button2_Click(object sender, EventArgs e) => webView21.CoreWebView2.GoForward();
+        private void button3_Click(object sender, EventArgs e) => webView21.CoreWebView2.Reload();
+        private void button4_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/feed");
+        private void button5_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/explore");
+        private void button6_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/notifications");
+        private void button7_Click(object sender, EventArgs e) => new StandartUISettings().ShowDialog();
+        private void button8_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/me");
+        private string GetDefaultDownloadsPath()
+        {
+            return Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                "Downloads"
+            );
+        }
+        private string CleanPath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return path;
+            path = path.Trim();
+            if (path.StartsWith("\"") && path.EndsWith("\""))
+            {
+                path = path.Substring(1, path.Length - 2);
+            }
+            return path;
+        }
+        private bool IsValidPath(string path)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(path))
+                    return false;
+                if (!Path.IsPathRooted(path))
+                {
+                    path = Path.GetFullPath(path);
+                }
+                string invalidChars = new string(Path.GetInvalidPathChars());
+                if (path.Any(c => invalidChars.Contains(c)))
+                    return false;
+                if (!Directory.Exists(path))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(path);
+                        if (Directory.GetFileSystemEntries(path).Length == 0)
+                            Directory.Delete(path);
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+    }
+}
