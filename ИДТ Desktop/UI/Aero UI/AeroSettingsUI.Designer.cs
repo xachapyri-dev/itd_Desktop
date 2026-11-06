@@ -33,6 +33,7 @@
             this.kryptonManager1 = new Krypton.Toolkit.KryptonManager(this.components);
             this.kryptonNavigator1 = new Krypton.Navigator.KryptonNavigator();
             this.kryptonPage1 = new Krypton.Navigator.KryptonPage();
+            this.kryptonCheckBox2 = new Krypton.Toolkit.KryptonCheckBox();
             this.kryptonButton4 = new Krypton.Toolkit.KryptonButton();
             this.kryptonButton3 = new Krypton.Toolkit.KryptonButton();
             this.kryptonHeader3 = new Krypton.Toolkit.KryptonHeader();
@@ -52,7 +53,6 @@
             this.kryptonCheckBox1 = new Krypton.Toolkit.KryptonCheckBox();
             this.kryptonPage3 = new Krypton.Navigator.KryptonPage();
             this.kryptonPanel1 = new Krypton.Toolkit.KryptonPanel();
-            this.kryptonWebBrowser1 = new Krypton.Toolkit.KryptonWebBrowser();
             this.kryptonLabel6 = new Krypton.Toolkit.KryptonLabel();
             this.kryptonLinkLabel5 = new Krypton.Toolkit.KryptonLinkLabel();
             this.kryptonLinkLabel4 = new Krypton.Toolkit.KryptonLinkLabel();
@@ -67,6 +67,7 @@
             this.kryptonLabel3 = new Krypton.Toolkit.KryptonLabel();
             this.kryptonHeader4 = new Krypton.Toolkit.KryptonHeader();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.kryptonNavigator1)).BeginInit();
             this.kryptonNavigator1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.kryptonPage1)).BeginInit();
@@ -111,7 +112,7 @@
             this.kryptonPage1,
             this.kryptonPage2,
             this.kryptonPage3});
-            this.kryptonNavigator1.SelectedIndex = 1;
+            this.kryptonNavigator1.SelectedIndex = 0;
             this.kryptonNavigator1.Size = new System.Drawing.Size(657, 554);
             this.kryptonNavigator1.TabIndex = 0;
             this.kryptonNavigator1.Text = "kryptonNavigator1";
@@ -119,6 +120,7 @@
             // kryptonPage1
             // 
             this.kryptonPage1.AutoHiddenSlideSize = new System.Drawing.Size(200, 200);
+            this.kryptonPage1.Controls.Add(this.kryptonCheckBox2);
             this.kryptonPage1.Controls.Add(this.kryptonButton4);
             this.kryptonPage1.Controls.Add(this.kryptonButton3);
             this.kryptonPage1.Controls.Add(this.kryptonHeader3);
@@ -136,9 +138,17 @@
             this.kryptonPage1.ToolTipTitle = "Page ToolTip";
             this.kryptonPage1.UniqueName = "231d39bdc95e4cdea8b5d7e520465450";
             // 
+            // kryptonCheckBox2
+            // 
+            this.kryptonCheckBox2.Location = new System.Drawing.Point(12, 68);
+            this.kryptonCheckBox2.Name = "kryptonCheckBox2";
+            this.kryptonCheckBox2.Size = new System.Drawing.Size(98, 25);
+            this.kryptonCheckBox2.TabIndex = 8;
+            this.kryptonCheckBox2.Values.Text = "Автозагрузка";
+            // 
             // kryptonButton4
             // 
-            this.kryptonButton4.Location = new System.Drawing.Point(11, 226);
+            this.kryptonButton4.Location = new System.Drawing.Point(8, 246);
             this.kryptonButton4.Name = "kryptonButton4";
             this.kryptonButton4.Size = new System.Drawing.Size(140, 25);
             this.kryptonButton4.TabIndex = 7;
@@ -148,7 +158,7 @@
             // 
             // kryptonButton3
             // 
-            this.kryptonButton3.Location = new System.Drawing.Point(11, 195);
+            this.kryptonButton3.Location = new System.Drawing.Point(8, 215);
             this.kryptonButton3.Name = "kryptonButton3";
             this.kryptonButton3.Size = new System.Drawing.Size(140, 25);
             this.kryptonButton3.TabIndex = 6;
@@ -158,7 +168,7 @@
             // 
             // kryptonHeader3
             // 
-            this.kryptonHeader3.Location = new System.Drawing.Point(3, 149);
+            this.kryptonHeader3.Location = new System.Drawing.Point(0, 169);
             this.kryptonHeader3.Name = "kryptonHeader3";
             this.kryptonHeader3.Size = new System.Drawing.Size(240, 31);
             this.kryptonHeader3.TabIndex = 5;
@@ -168,7 +178,7 @@
             // 
             // kryptonButton2
             // 
-            this.kryptonButton2.Location = new System.Drawing.Point(142, 118);
+            this.kryptonButton2.Location = new System.Drawing.Point(139, 138);
             this.kryptonButton2.Name = "kryptonButton2";
             this.kryptonButton2.Size = new System.Drawing.Size(101, 25);
             this.kryptonButton2.TabIndex = 4;
@@ -178,14 +188,14 @@
             // 
             // kryptonTextBox1
             // 
-            this.kryptonTextBox1.Location = new System.Drawing.Point(11, 118);
+            this.kryptonTextBox1.Location = new System.Drawing.Point(8, 138);
             this.kryptonTextBox1.Name = "kryptonTextBox1";
             this.kryptonTextBox1.Size = new System.Drawing.Size(125, 23);
             this.kryptonTextBox1.TabIndex = 3;
             // 
             // kryptonHeader2
             // 
-            this.kryptonHeader2.Location = new System.Drawing.Point(3, 81);
+            this.kryptonHeader2.Location = new System.Drawing.Point(0, 101);
             this.kryptonHeader2.Name = "kryptonHeader2";
             this.kryptonHeader2.Size = new System.Drawing.Size(240, 31);
             this.kryptonHeader2.TabIndex = 2;
@@ -341,19 +351,11 @@
             // 
             // kryptonPanel1
             // 
-            this.kryptonPanel1.Controls.Add(this.kryptonWebBrowser1);
+            this.kryptonPanel1.Controls.Add(this.richTextBox1);
             this.kryptonPanel1.Location = new System.Drawing.Point(12, 740);
             this.kryptonPanel1.Name = "kryptonPanel1";
             this.kryptonPanel1.Size = new System.Drawing.Size(615, 312);
             this.kryptonPanel1.TabIndex = 13;
-            // 
-            // kryptonWebBrowser1
-            // 
-            this.kryptonWebBrowser1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.kryptonWebBrowser1.Location = new System.Drawing.Point(0, 0);
-            this.kryptonWebBrowser1.Name = "kryptonWebBrowser1";
-            this.kryptonWebBrowser1.Size = new System.Drawing.Size(615, 312);
-            this.kryptonWebBrowser1.TabIndex = 0;
             // 
             // kryptonLabel6
             // 
@@ -472,6 +474,16 @@
             this.kryptonHeader4.Values.Heading = "О клиенте";
             this.kryptonHeader4.Values.Image = null;
             // 
+            // richTextBox1
+            // 
+            this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.richTextBox1.Location = new System.Drawing.Point(0, 0);
+            this.richTextBox1.Name = "richTextBox1";
+            this.richTextBox1.ReadOnly = true;
+            this.richTextBox1.Size = new System.Drawing.Size(615, 312);
+            this.richTextBox1.TabIndex = 0;
+            this.richTextBox1.Text = "";
+            // 
             // AeroSettingsUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -539,7 +551,8 @@
         private Krypton.Toolkit.KryptonLinkLabel kryptonLinkLabel5;
         private Krypton.Toolkit.KryptonLabel kryptonLabel6;
         private Krypton.Toolkit.KryptonPanel kryptonPanel1;
-        private Krypton.Toolkit.KryptonWebBrowser kryptonWebBrowser1;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+        private Krypton.Toolkit.KryptonCheckBox kryptonCheckBox2;
+        private System.Windows.Forms.RichTextBox richTextBox1;
     }
 }

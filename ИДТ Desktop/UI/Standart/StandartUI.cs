@@ -4,81 +4,168 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using ИТД_Desktop.Script;
+using ИТД_Desktop.UI.Aero_UI;
 
 namespace ИТД_Desktop.UI.Standart
 {
     public partial class StandartUI : Form
     {
+        private NotifyIcon trayIcon;
+        private ContextMenuStrip trayMenu;
+        private bool reallyExit = false;
+
         public StandartUI()
         {
             InitializeComponent();
+            InitTrayIcon();
+
             webView21.Source = new Uri("https://xn--d1ah4a.com/");
             UpdateTheme(false);
         }
-        #region WebView2
-        private async void webView21_NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
-        {
-            // document.documentElement.setAttribute("data-theme", i);
-            // const i = a === "light" ? "dark" : "light";
-            // za = "nowkie_theme";
-            // localStorage.setItem(za, i);
-            this.Text = $"ИТД Desktop | {webView21.Source}";
-            label1.Text = webView21.Source.ToString();
-            if (Properties.Settings.Default.DarkTheme)
-                await webView21.CoreWebView2.ExecuteScriptAsync("document.documentElement.setAttribute(\"data-theme\", \"dark\");\n" +
-                    "localStorage.setItem(\"nowkie_theme\", \"dark\")");
-            else
-                await webView21.CoreWebView2.ExecuteScriptAsync("document.documentElement.setAttribute(\"data-theme\", \"light\");\n" +
-                    "localStorage.setItem(\"nowkie_theme\", \"light\")");
 
-        }
-        private void webView21_CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
+        private void InitTrayIcon()
         {
-            if (!e.IsSuccess)
+            if (trayIcon != null)
             {
-                MessageBox.Show("Ошибка инициализации WebView2: " + e.InitializationException?.Message);
+                trayIcon.Visible = false;
+                trayIcon.Dispose();
+            }
+
+            Icon appIcon;
+            try
+            {
+                byte[] iconBytes = Properties.Resources.itd;
+                using (var ms = new MemoryStream(iconBytes))
+                {
+                    appIcon = new Icon(ms);
+                }
+            }
+            catch
+            {
+                appIcon = SystemIcons.Application;
+            }
+            trayMenu = new ContextMenuStrip();
+            trayMenu.Items.Add(new ToolStripMenuItem("Открыть", null, (s, e) => RestoreWindow()));
+            trayMenu.Items.Add(new ToolStripMenuItem("Настройки", null, (s, e) => new StandartUISettings().ShowDialog()));
+            trayMenu.Items.Add(new ToolStripSeparator());
+            trayMenu.Items.Add(new ToolStripMenuItem("Переключить на тему Aero", null, (s, e) => SwitchToAeroTheme()));
+            trayMenu.Items.Add(new ToolStripSeparator());
+            trayMenu.Items.Add(new ToolStripMenuItem("Выход", null, (s, e) => ExitApplication()));
+
+            trayIcon = new NotifyIcon
+            {
+                Icon = appIcon,
+                ContextMenuStrip = trayMenu,
+                Text = "ИТД Desktop",
+                Visible = true
+            };
+
+            trayIcon.DoubleClick += (s, e) => RestoreWindow();
+            trayIcon.BalloonTipClicked += (s, e) => RestoreWindow();
+
+            trayIcon.MouseClick += (s, e) =>
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    RestoreWindow();
+                }
+            };
+        }
+
+        private void RestoreWindow()
+        {
+            this.Show();
+            this.WindowState = FormWindowState.Normal;
+            this.ShowInTaskbar = true;
+            this.Activate();
+        }
+
+        private void SwitchToAeroTheme()
+        {
+            Properties.Settings.Default.ThemeSelected = 1;
+            Properties.Settings.Default.Save();
+
+            reallyExit = true;
+            if (trayIcon != null)
+            {
+                trayIcon.Visible = false;
+                trayIcon.Dispose();
+            }
+
+            ThemeHelper.Initialize();
+            var aeroForm = new AeroUI();
+            Program.AppContext.MainForm = aeroForm;
+            aeroForm.Show();
+
+            this.Close();
+        }
+
+        private void ExitApplication()
+        {
+            reallyExit = true;
+            if (trayIcon != null)
+            {
+                trayIcon.Visible = false;
+                trayIcon.Dispose();
+            }
+            Application.Exit();
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if (!reallyExit && e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                this.Hide();
+                this.ShowInTaskbar = false;
+                trayIcon?.ShowBalloonTip(2000, "ИТД Desktop", "Клиент свернут в трей и продолжит присылать уведомления.", ToolTipIcon.Info);
                 return;
             }
+
+            base.OnFormClosing(e);
+        }
+        private void ApplyDownloadPath()
+        {
             try
             {
                 string originalPath = Properties.Settings.Default.FilePath;
-                Console.WriteLine($"Original path from settings: '{originalPath}'");
-                string downloadPath;
-                if (!string.IsNullOrWhiteSpace(originalPath))
-                {
-                    string cleanedPath = CleanPath(originalPath);
-                    Console.WriteLine($"Cleaned path: '{cleanedPath}'");
-                    if (IsValidPath(cleanedPath))
-                    {
-                        downloadPath = cleanedPath;
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Path is invalid, using default");
-                        downloadPath = GetDefaultDownloadsPath();
-                    }
-                }
-                else
-                {
-                    downloadPath = GetDefaultDownloadsPath();
-                }
-                Console.WriteLine($"Setting download path to: '{downloadPath}'");
+                string downloadPath = !string.IsNullOrWhiteSpace(originalPath) && IsValidPath(CleanPath(originalPath))
+                    ? CleanPath(originalPath)
+                    : GetDefaultDownloadsPath();
+
                 webView21.CoreWebView2.Profile.DefaultDownloadFolderPath = downloadPath;
             }
-            catch (Exception ex)
+            catch
             {
                 string defaultPath = GetDefaultDownloadsPath();
                 webView21.CoreWebView2.Profile.DefaultDownloadFolderPath = defaultPath;
-                MessageBox.Show($"Ошибка при установке папки загрузок: {ex.Message}\n\n" +
-                               $"Используется стандартная папка: {defaultPath}",
-                               "Ошибка",
-                               MessageBoxButtons.OK,
-                               MessageBoxIcon.Warning);
-                Console.WriteLine($"Exception details: {ex}");
             }
         }
+        #region WebView2
+        private void webView21_CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
+        {
+            if (!e.IsSuccess) return;
+            webView21.CoreWebView2.WebMessageReceived += (s, args) =>
+                ClientBridgeHelper.HandleWebMessage(args.WebMessageAsJson, trayIcon);
+            ClientBridgeHelper.InjectBridgeScripts(webView21.CoreWebView2);
+            ApplyDownloadPath();
+        }
 
+        private async void webView21_NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
+        {
+            this.Text = $"ИТД Desktop | {webView21.Source}";
+            label1.Text = webView21.Source.ToString();
+            string theme = Properties.Settings.Default.DarkTheme ? "dark" : "light";
+            await webView21.CoreWebView2.ExecuteScriptAsync(
+                $"document.documentElement.setAttribute('data-theme', '{theme}'); localStorage.setItem('nowkie_theme', '{theme}');");
+            if (Properties.Settings.Default.FirstRunClient)
+            {
+                ClientBridgeHelper.ShowWelcomeModal(webView21.CoreWebView2);
+            }
+        }
         #endregion
+
         public void UpdateTheme(bool isRestartpage = true)
         {
             if (!Properties.Settings.Default.DarkTheme)
@@ -96,6 +183,8 @@ namespace ИТД_Desktop.UI.Standart
                 button6.ForeColor = Color.Black;
                 button7.ForeColor = Color.Black;
                 button8.ForeColor = Color.Black;
+                button10.ForeColor = Color.Black;
+                button9.ForeColor = Color.Black;
                 button1.BackColor = Color.White;
                 button2.BackColor = Color.White;
                 button3.BackColor = Color.White;
@@ -104,6 +193,8 @@ namespace ИТД_Desktop.UI.Standart
                 button6.BackColor = Color.White;
                 button7.BackColor = Color.White;
                 button8.BackColor = Color.White;
+                button10.BackColor = Color.White;
+                button9.BackColor = Color.White;
             }
             else
             {
@@ -120,6 +211,8 @@ namespace ИТД_Desktop.UI.Standart
                 button6.ForeColor = Color.White;
                 button7.ForeColor = Color.White;
                 button8.ForeColor = Color.White;
+                button9.ForeColor = Color.White;
+                button10.ForeColor = Color.White;
                 button1.BackColor = Color.Black;
                 button2.BackColor = Color.Black;
                 button3.BackColor = Color.Black;
@@ -128,18 +221,24 @@ namespace ИТД_Desktop.UI.Standart
                 button6.BackColor = Color.Black;
                 button7.BackColor = Color.Black;
                 button8.BackColor = Color.Black;
+                button9.BackColor = Color.Black;
+                button10.BackColor = Color.Black;
             }
             if (isRestartpage)
                 webView21.CoreWebView2.Reload();
         }
+
         private void button1_Click(object sender, EventArgs e) => webView21.CoreWebView2.GoBack();
         private void button2_Click(object sender, EventArgs e) => webView21.CoreWebView2.GoForward();
         private void button3_Click(object sender, EventArgs e) => webView21.CoreWebView2.Reload();
-        private void button4_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/feed");
-        private void button5_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/explore");
+        private void button4_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/");
+        private void button5_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/search");
         private void button6_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/notifications");
         private void button7_Click(object sender, EventArgs e) => new StandartUISettings().ShowDialog();
-        private void button8_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/me");
+        private void button8_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/@me");
+        private void button9_Click_1(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/shop");
+        private void button10_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/event");
+
         private string GetDefaultDownloadsPath()
         {
             return Path.Combine(
@@ -147,6 +246,7 @@ namespace ИТД_Desktop.UI.Standart
                 "Downloads"
             );
         }
+
         private string CleanPath(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -158,6 +258,7 @@ namespace ИТД_Desktop.UI.Standart
             }
             return path;
         }
+
         private bool IsValidPath(string path)
         {
             try

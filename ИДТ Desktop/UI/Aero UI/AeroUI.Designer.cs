@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AeroUI));
             this.kryptonPanel1 = new Krypton.Toolkit.KryptonPanel();
             this.kryptonButton7 = new Krypton.Toolkit.KryptonButton();
@@ -37,11 +38,13 @@
             this.kryptonButton3 = new Krypton.Toolkit.KryptonButton();
             this.kryptonButton2 = new Krypton.Toolkit.KryptonButton();
             this.kryptonButton1 = new Krypton.Toolkit.KryptonButton();
-            this.kryptonManager1 = new Krypton.Toolkit.KryptonManager();
+            this.kryptonManager1 = new Krypton.Toolkit.KryptonManager(this.components);
             this.kryptonPanel2 = new Krypton.Toolkit.KryptonPanel();
             this.kryptonLabel1 = new Krypton.Toolkit.KryptonLabel();
             this.buttonSpecAny1 = new Krypton.Toolkit.ButtonSpecAny();
             this.webView21 = new Microsoft.Web.WebView2.WinForms.WebView2();
+            this.kryptonButton8 = new Krypton.Toolkit.KryptonButton();
+            this.kryptonButton9 = new Krypton.Toolkit.KryptonButton();
             ((System.ComponentModel.ISupportInitialize)(this.kryptonPanel1)).BeginInit();
             this.kryptonPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.kryptonPanel2)).BeginInit();
@@ -51,6 +54,8 @@
             // 
             // kryptonPanel1
             // 
+            this.kryptonPanel1.Controls.Add(this.kryptonButton9);
+            this.kryptonPanel1.Controls.Add(this.kryptonButton8);
             this.kryptonPanel1.Controls.Add(this.kryptonButton7);
             this.kryptonPanel1.Controls.Add(this.kryptonButton6);
             this.kryptonPanel1.Controls.Add(this.kryptonButton5);
@@ -66,7 +71,7 @@
             // 
             // kryptonButton7
             // 
-            this.kryptonButton7.Location = new System.Drawing.Point(332, 0);
+            this.kryptonButton7.Location = new System.Drawing.Point(472, 0);
             this.kryptonButton7.Name = "kryptonButton7";
             this.kryptonButton7.Size = new System.Drawing.Size(92, 25);
             this.kryptonButton7.TabIndex = 7;
@@ -76,7 +81,7 @@
             // 
             // kryptonButton6
             // 
-            this.kryptonButton6.Location = new System.Drawing.Point(234, 0);
+            this.kryptonButton6.Location = new System.Drawing.Point(374, 0);
             this.kryptonButton6.Name = "kryptonButton6";
             this.kryptonButton6.Size = new System.Drawing.Size(92, 25);
             this.kryptonButton6.TabIndex = 6;
@@ -86,7 +91,7 @@
             // 
             // kryptonButton5
             // 
-            this.kryptonButton5.Location = new System.Drawing.Point(168, 0);
+            this.kryptonButton5.Location = new System.Drawing.Point(234, 0);
             this.kryptonButton5.Name = "kryptonButton5";
             this.kryptonButton5.Size = new System.Drawing.Size(60, 25);
             this.kryptonButton5.TabIndex = 5;
@@ -166,16 +171,38 @@
             // webView21
             // 
             this.webView21.AllowExternalDrop = true;
+            this.webView21.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.webView21.CreationProperties = null;
             this.webView21.DefaultBackgroundColor = System.Drawing.Color.White;
-            this.webView21.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.webView21.Location = new System.Drawing.Point(0, 25);
+            this.webView21.Location = new System.Drawing.Point(3, 31);
             this.webView21.Name = "webView21";
-            this.webView21.Size = new System.Drawing.Size(1225, 506);
+            this.webView21.Size = new System.Drawing.Size(1222, 500);
             this.webView21.TabIndex = 5;
             this.webView21.ZoomFactor = 1D;
             this.webView21.CoreWebView2InitializationCompleted += new System.EventHandler<Microsoft.Web.WebView2.Core.CoreWebView2InitializationCompletedEventArgs>(this.webView21_CoreWebView2InitializationCompleted);
             this.webView21.NavigationCompleted += new System.EventHandler<Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs>(this.webView21_NavigationCompleted);
+            // 
+            // kryptonButton8
+            // 
+            this.kryptonButton8.Location = new System.Drawing.Point(168, 0);
+            this.kryptonButton8.Name = "kryptonButton8";
+            this.kryptonButton8.Size = new System.Drawing.Size(60, 25);
+            this.kryptonButton8.TabIndex = 8;
+            this.kryptonButton8.Values.DropDownArrowColor = System.Drawing.Color.Empty;
+            this.kryptonButton8.Values.Text = "Магазин";
+            this.kryptonButton8.Click += new System.EventHandler(this.kryptonButton8_Click);
+            // 
+            // kryptonButton9
+            // 
+            this.kryptonButton9.Location = new System.Drawing.Point(300, 0);
+            this.kryptonButton9.Name = "kryptonButton9";
+            this.kryptonButton9.Size = new System.Drawing.Size(68, 25);
+            this.kryptonButton9.TabIndex = 9;
+            this.kryptonButton9.Values.DropDownArrowColor = System.Drawing.Color.Empty;
+            this.kryptonButton9.Values.Text = "Событие";
+            this.kryptonButton9.Click += new System.EventHandler(this.kryptonButton9_Click);
             // 
             // AeroUI
             // 
@@ -219,5 +246,7 @@
         private Krypton.Toolkit.KryptonButton kryptonButton7;
         private Krypton.Toolkit.KryptonButton kryptonButton6;
         private Microsoft.Web.WebView2.WinForms.WebView2 webView21;
+        private Krypton.Toolkit.KryptonButton kryptonButton8;
+        private Krypton.Toolkit.KryptonButton kryptonButton9;
     }
 }

@@ -2,6 +2,6 @@
 {
     public static class Data
     {
-        public static readonly string version = "1.0.0";
+        public static readonly string version = "2.0.0";
     }
 }

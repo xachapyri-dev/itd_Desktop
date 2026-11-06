@@ -4,22 +4,25 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using ИТД_Desktop.Script;
 
 namespace ИТД_Desktop.UI.Aero_UI
 {
     public partial class AeroSettingsUI : KryptonForm
     {
         AeroUI main = Application.OpenForms.OfType<AeroUI>().FirstOrDefault();
+        private bool isInitializing = false;
+
         public AeroSettingsUI()
         {
             InitializeComponent();
             ThemeHelper.RegisterForm(this, kryptonManager1);
             InitializeThemeComboBox();
-            kryptonWebBrowser1.Url = new Uri(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LICENCE.txt"));
-            if (Properties.Settings.Default.DarkTheme)
-                kryptonCheckBox1.Checked = true;
-            else
-                kryptonCheckBox1.Checked = false;
+            richTextBox1.Text = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LICENCE.txt"));
+            isInitializing = true;
+            kryptonCheckBox1.Checked = Properties.Settings.Default.DarkTheme;
+            kryptonCheckBox2.Checked = ClientBridgeHelper.IsAutostartEnabled();
+            isInitializing = false;
             kryptonTextBox1.Text = Properties.Settings.Default.FilePath;
             if (Properties.Settings.Default.ThemeSelected == 1)
             {
@@ -27,6 +30,7 @@ namespace ИТД_Desktop.UI.Aero_UI
                 kryptonButton6.Text = "Установленно!";
             }
         }
+
         private void InitializeThemeComboBox()
         {
             kryptonComboBox1.Items.Clear();
@@ -46,6 +50,7 @@ namespace ИТД_Desktop.UI.Aero_UI
                 }
             }
         }
+
         private void KryptonComboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (kryptonComboBox1.SelectedItem != null)
@@ -58,10 +63,12 @@ namespace ИТД_Desktop.UI.Aero_UI
                 }
             }
         }
+
         private void kryptonButton1_Click(object sender, EventArgs e)
         {
             Process.Start(AppDomain.CurrentDomain.BaseDirectory);
         }
+
         private void kryptonButton2_Click(object sender, EventArgs e)
         {
             DialogResult dialog = folderBrowserDialog1.ShowDialog();
@@ -71,6 +78,7 @@ namespace ИТД_Desktop.UI.Aero_UI
             Properties.Settings.Default.FilePath = folderBrowserDialog1.SelectedPath;
             Properties.Settings.Default.Save();
         }
+
         private void kryptonButton3_Click(object sender, EventArgs e)
         {
             DialogResult result = MessageBox.Show("Предупреждение!\n" +
@@ -87,41 +95,53 @@ namespace ИТД_Desktop.UI.Aero_UI
                     Application.Restart();
             }
         }
+
         private void kryptonButton4_Click(object sender, EventArgs e)
         {
             DialogResult result = MessageBox.Show("Предупреждение!\n" +
-                "Эта кнопка сбрасывает ТОЛЬКО те настройки, которые были внесены пользователем (например: папка загрузок, оформление).",
+                "Эта кнопка сбрасывает абсолютно ВСЕ пользовательские настройки (например: автозагрузка приложения, данные браузера WebView2, папка загрузок, оформление).",
                 "Предупреждение!",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning);
+
             if (result == DialogResult.Yes)
             {
+                ClientBridgeHelper.SetAutostart(false);
                 Properties.Settings.Default.Reset();
                 Process.Start(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CleanerAll.exe"));
             }
         }
+
         private void kryptonCheckBox1_CheckedChanged(object sender, EventArgs e)
         {
-            if (kryptonCheckBox1.Checked)
-                Properties.Settings.Default.DarkTheme = true;
-            else
-                Properties.Settings.Default.DarkTheme = false;
+            if (isInitializing) return;
+
+            Properties.Settings.Default.DarkTheme = kryptonCheckBox1.Checked;
             Properties.Settings.Default.Save();
-            main.UpdateThemeForWeb();
+            main?.UpdateThemeForWeb();
         }
+
+        private void kryptonCheckBox2_CheckedChanged(object sender, EventArgs e)
+        {
+            if (isInitializing) return;
+            ClientBridgeHelper.SetAutostart(kryptonCheckBox2.Checked);
+        }
+
         private void kryptonPictureBox1_Click(object sender, EventArgs e) => new ImageViewerAeroUI(Properties.Resources.ITD_Standart).ShowDialog();
         private void kryptonPictureBox2_Click(object sender, EventArgs e) => new ImageViewerAeroUI(Properties.Resources.ITD_Aero).ShowDialog();
+
         private void kryptonButton5_Click(object sender, EventArgs e)
         {
             Properties.Settings.Default.ThemeSelected = 0;
             Properties.Settings.Default.Save();
             kryptonButton5.Text = "Установить";
             kryptonButton5.Enabled = true;
-            DialogResult result = MessageBox.Show("Для того чтобы изменения вошли в силу, необхадимо перезапустить клиент.\n" +
+            DialogResult result = MessageBox.Show("Для того чтобы изменения вошли в силу, необходимо перезапустить клиент.\n" +
                 "Сделать сейчас?", "Успешно", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result == DialogResult.Yes)
                 Application.Restart();
         }
+
         private void kryptonButton6_Click(object sender, EventArgs e)
         {
             Properties.Settings.Default.ThemeSelected = 1;
@@ -129,6 +149,7 @@ namespace ИТД_Desktop.UI.Aero_UI
             kryptonButton6.Enabled = false;
             kryptonButton6.Text = "Установленно!";
         }
+
         private void kryptonLinkLabel1_LinkClicked(object sender, EventArgs e) => Process.Start("https://github.com/xachapyri-dev/itd_Desktop/issues");
         private void kryptonLinkLabel2_LinkClicked(object sender, EventArgs e) => Process.Start("https://github.com/xachapyri-dev/itd_Desktop");
         private void kryptonLinkLabel3_LinkClicked(object sender, EventArgs e) => Process.Start("https://github.com/xachapyri-dev");

@@ -1,21 +1,19 @@
 ﻿using Krypton.Toolkit;
 using Microsoft.Web.WebView2.Core;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using ИТД_Desktop.UI.Standart;
 
 namespace ИТД_Desktop.UI.Aero_UI
 {
     public partial class AeroUI : KryptonForm
     {
+        private NotifyIcon trayIcon;
+        private ContextMenuStrip trayMenu;
+        private bool reallyExit = false;
         public AeroUI()
         {
             InitializeComponent();
@@ -26,6 +24,92 @@ namespace ИТД_Desktop.UI.Aero_UI
                 var settings = new AeroSettingsUI();
                 settings.Show();
             };
+            InitTrayIcon();
+        }
+        private void InitTrayIcon()
+        {
+            Icon appIcon;
+            try
+            {
+                byte[] iconBytes = Properties.Resources.itd;
+                using (var ms = new MemoryStream(iconBytes))
+                {
+                    appIcon = new Icon(ms);
+                }
+            }
+            catch
+            {
+                appIcon = SystemIcons.Information;
+            }
+
+            trayMenu = new ContextMenuStrip();
+            trayMenu.Items.Add(new ToolStripMenuItem("Открыть", null, (s, e) => RestoreWindow()));
+            trayMenu.Items.Add(new ToolStripMenuItem("Настройки", null, (s, e) => new AeroSettingsUI().ShowDialog()));
+            trayMenu.Items.Add(new ToolStripSeparator());
+            trayMenu.Items.Add(new ToolStripMenuItem("Переключить на Стандартную тему", null, (s, e) => SwitchToStandartTheme()));
+            trayMenu.Items.Add(new ToolStripSeparator());
+            trayMenu.Items.Add(new ToolStripMenuItem("Выход", null, (s, e) => ExitApplication()));
+
+            trayIcon = new NotifyIcon
+            {
+                Icon = appIcon,
+                ContextMenuStrip = trayMenu,
+                Visible = true,
+                Text = "ИТД Desktop (Aero)"
+            };
+
+            trayIcon.DoubleClick += (s, e) => RestoreWindow();
+            trayIcon.BalloonTipClicked += (s, e) => RestoreWindow();
+        }
+
+        private void RestoreWindow()
+        {
+            this.Show();
+            this.WindowState = FormWindowState.Normal;
+            this.ShowInTaskbar = true;
+            this.Activate();
+        }
+
+        private void SwitchToStandartTheme()
+        {
+            Properties.Settings.Default.ThemeSelected = 0;
+            Properties.Settings.Default.Save();
+
+            reallyExit = true;
+            if (trayIcon != null)
+            {
+                trayIcon.Visible = false;
+                trayIcon.Dispose();
+            }
+
+            var stdForm = new StandartUI();
+            Program.AppContext.MainForm = stdForm;
+            stdForm.Show();
+
+            this.Close();
+        }
+
+        private void ExitApplication()
+        {
+            reallyExit = true;
+            if (trayIcon != null)
+            {
+                trayIcon.Visible = false;
+                trayIcon.Dispose();
+            }
+            Application.Exit();
+        }
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if (!reallyExit && e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                this.Hide();
+                this.ShowInTaskbar = false;
+                trayIcon.ShowBalloonTip(2000, "ИТД Desktop", "Приложение работает в фоне и продолжает получать уведомления.", ToolTipIcon.Info);
+                return;
+            }
+            base.OnFormClosing(e);
         }
         #region WebView2
         private void webView21_CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
@@ -88,10 +172,12 @@ namespace ИТД_Desktop.UI.Aero_UI
         private void kryptonButton1_Click(object sender, EventArgs e) => webView21.CoreWebView2.GoBack();
         private void kryptonButton2_Click(object sender, EventArgs e) => webView21.CoreWebView2.GoForward();
         private void kryptonButton3_Click(object sender, EventArgs e) => webView21.CoreWebView2.Reload();
-        private void kryptonButton4_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/feed");
-        private void kryptonButton5_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/explore");
+        private void kryptonButton4_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/");
+        private void kryptonButton5_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/search");
         private void kryptonButton6_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/notifications");
-        private void kryptonButton7_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/me");
+        private void kryptonButton7_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/@me");
+        private void kryptonButton8_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/shop");
+        private void kryptonButton9_Click(object sender, EventArgs e) => webView21.CoreWebView2.Navigate("https://xn--d1ah4a.com/event");
         public void UpdateThemeForWeb() => webView21.CoreWebView2.Reload();
         private string GetDefaultDownloadsPath()
         {
@@ -144,5 +230,6 @@ namespace ИТД_Desktop.UI.Aero_UI
                 return false;
             }
         }
+
     }
 }

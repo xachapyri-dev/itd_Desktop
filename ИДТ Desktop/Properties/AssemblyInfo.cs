@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // Общие сведения об этой сборке предоставляются следующим набором
 // набора атрибутов. Измените значения этих атрибутов для изменения сведений,
 // связанных со сборкой.
-[assembly: AssemblyTitle("ИДТ Desktop")]
+[assembly: AssemblyTitle("ИТД Desktop")]
 [assembly: AssemblyDescription("ИТД Desktop - Клиент соц.сети \"ИТД\" для Windows.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Хачапури dev")]
-[assembly: AssemblyProduct("ИДТ Desktop")]
+[assembly: AssemblyProduct("ИТД Desktop")]
 [assembly: AssemblyCopyright("Copyright ©  2026")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
